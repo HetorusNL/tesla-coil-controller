@@ -5,7 +5,7 @@ class SerialHandler:
     def __init__(self, port, baudrate=115200):
         self.port = serial.Serial()
         self.port.port = port
-        self.port.baudrate = 115200
+        self.port.baudrate = baudrate
         self.port.timeout = 0
 
     def open(self):
