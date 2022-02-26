@@ -25,9 +25,12 @@ file = mido.MidiFile("Touhou-Bad-Apple.mid")
 cnt = 0
 on = 0
 off = 0
-sh.write(b"m\n")  # enter midi mode
+sequence_number = 0
+# enter midi mode
+sh.write(bytearray([0x02, sequence_number, 0x01, 0x00, 0x03]))
+sequence_number = (sequence_number + 1) % 256
 sleep(0.25)
-print(sh.read().decode("utf-8"))
+print(list(sh.read()))
 for msg in file:
     print(msg)
     if msg.type == "note_on":
@@ -39,11 +42,21 @@ for msg in file:
         midi_msg = [*msg.bytes(), int(time / 256), int(time % 256)]
         if msg.time:
             sleep(msg.time)
-        sh.write(bytearray(midi_msg))
-        sh.write(b"\n")
-        print(sh.read().decode("utf-8"))
-sh.write(bytearray([0xFF]))  # exit midi mode
-sh.write(b"\n")
+        new_midi_msg = [
+            0x02,
+            sequence_number,
+            0x02,
+            len(midi_msg),
+            *midi_msg,
+            0x03,
+        ]
+        sequence_number = (sequence_number + 1) % 256
+        print("msg > ", new_midi_msg)
+        sh.write(bytearray(new_midi_msg))
+        response = list(sh.read())
+        print(response)
+# exit midi mode
+sh.write(bytearray([0x02, sequence_number, 0x03, 0x00, 0x03]))
 print("on", on, "off", off)
 print(file.length)
 print(cnt)
