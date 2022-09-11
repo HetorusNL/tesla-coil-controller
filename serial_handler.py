@@ -36,4 +36,11 @@ class SerialHandler:
             if msg[1] == 0x15:
                 self.sequence_number = msg[2]
                 result = False
+            elif msg[1] == 0xFF:
+                result = False
+                print(
+                    f"debug print: "
+                    f'"{bytearray(msg)[3:].decode("utf-8", "ignore")}" '
+                    f"{list(msg)}"
+                )
         return result, list(msg)
