@@ -1,28 +1,27 @@
-from genericpath import isfile
-from time import sleep
 import mido
+from pathlib import Path
+from time import sleep
+
 from keyboard_handler import KeyboardHandler
 from serial_handler import SerialHandler
-import os
-import re
 
 
 class TempMain:
     def __init__(self):
         # initialize the song list that can be played
-        self.song_list = []
-        song_path = "songs/"
-        for filename in os.listdir(song_path):
-            filename = os.path.join(song_path, filename)
-            print(filename)
-            if os.path.isfile(filename) and re.match(r".*\.mid$", filename):
-                self.song_list.append(filename)
+        self.song_list: list[Path] = []
+        song_path = Path(__file__).parent / "songs"
+        print(song_path)
+        for file_path in song_path.rglob("*.mid"):
+            print(file_path)
+            if file_path.is_file():
+                self.song_list.append(file_path)
 
         # setup the keyboard handler that monitors keyboard presses async
         self.kb_handler = KeyboardHandler()
 
         # setup the serial connection with the tesla coil interrupter
-        self.sh: SerialHandler = SerialHandler("COM3")
+        self.sh: SerialHandler = SerialHandler("/dev/ttyACM0")
         print(self.sh.open())
         sleep(0.05)
 
@@ -64,7 +63,7 @@ class TempMain:
         print("| MAIN MENU")
         print("+" + "=" * 79)
         for idx, song in enumerate(self.song_list):
-            print(f"| {idx:>2}: {song}")
+            print(f"| {idx:>2}: {song.name}")
         print("+" + "-" * 79)
         print(f"| {'r':>2}: reset the tesla coil interrupter")
         print(f"| {'q':>2}: quit the application")
@@ -73,7 +72,7 @@ class TempMain:
         print("\nmenu choice:")
         return input(">>> ")
 
-    def play_song(self, song_name):
+    def play_song(self, song_name: Path):
         # load the midi file
         file = mido.MidiFile(song_name)
 
@@ -97,7 +96,7 @@ class TempMain:
         # print some statistics
         song_end = "stopped" if terminated else "finished"
         song_idx = self.song_list.index(song_name)
-        print(f'{song_end} playing song "{song_idx}: {song_name}"')
+        print(f'{song_end} playing song "{song_idx}: {song_name.name}"')
         print(f"notes_on: {notes_on}, notes_off: {notes_off}")
         print(f"file length: {file.length} seconds")
 
