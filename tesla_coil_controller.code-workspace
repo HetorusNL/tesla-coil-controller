@@ -5,6 +5,10 @@
     }
   ],
   "settings": {
-    "python.analysis.typeCheckingMode": "standard"
+    "python.analysis.typeCheckingMode": "standard",
+    "editor.rulers": [120],
+    "editor.formatOnSave": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true
   }
 }

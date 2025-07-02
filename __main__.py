@@ -119,7 +119,7 @@ class TempMain:
                 time = int(msg.time * 1000)
                 midi_msg = [*msg.bytes(), int(time / 256), int(time % 256)]
                 if msg.time:
-                    sleep(msg.time)
+                    sleep(msg.time / 1.5)
                 new_midi_msg = [
                     0x02,
                     len(midi_msg),
